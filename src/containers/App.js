@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Clarifai from 'clarifai';
 import Particles from 'react-particles-js';
 import SignInForm from '../components/SignIn/SignInForm.js';
+import UserRank from '../components/UserRank/UserRank.js';
 import Registration from '../components/Registration/Registration.js';
 import Navigation from '../components/Navigation/Navigation.js';
 import ImageLinkForm from '../components/ImageLinkForm/ImageLinkForm.js';
@@ -32,10 +33,13 @@ class App extends Component {
       super();
       this.state = {
         input: '',
-        imageUrl: '',
         box: {},
-        isSignedIn: false,
-        route: 'signin'
+        isSignedIn: true,
+        route: 'signin',
+        user: {
+          username: 'Andrei',
+          rank: '5'
+        }
       };
   }
 
@@ -56,13 +60,14 @@ class App extends Component {
     }
   }
 
-  onDrop = () => {
+  onSubmit = () => {
     const { input } = this.state;
-    this.setState({ imageUrl: input});
-    // predict the contents of an image by passing in a url
-    app.models.predict(Clarifai.FACE_DETECT_MODEL, input)
-      .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
-      .catch(error => console.log(error))
+    if (input) {
+      // predict the contents of an image by passing in a url
+      app.models.predict(Clarifai.FACE_DETECT_MODEL, input)
+        .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+        .catch(error => console.log(error))
+    }
   }
 
   onRouteChange = (route) => {
@@ -79,7 +84,7 @@ class App extends Component {
   }
 
   render() {
-    const { route, isSignedIn, box, imageUrl } = this.state;
+    const { route, isSignedIn, box, input, user } = this.state;
     return (
       <div className="App">
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
@@ -90,8 +95,9 @@ class App extends Component {
         { isSignedIn || route === 'home'
           ? <div>
               <Logo />
-              <ImageLinkForm onDrop={this.onDrop} onValueChange={this.onValueChange} />
-              <FaceRecognition box={box} imageUrl={imageUrl} />
+              <UserRank user={user}/>
+              <ImageLinkForm onSubmit={this.onSubmit} onValueChange={this.onValueChange} />
+              <FaceRecognition box={box} imageUrl={input} />
             </div>
           : (
              route === 'signin' || route === 'signout'
