@@ -2,11 +2,6 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Courier New", Courier, monospace;
-  background: -moz-linear-gradient(1deg, #FF5EDF 0%, #04C8DE 100%); /* ff3.6+ */
-  background: -webkit-gradient(linear, left top, right top, color-stop(0%, #FF5EDF), color-stop(100%, #04C8DE)); /* safari4+,chrome */
-  background: -webkit-linear-gradient(1deg, #FF5EDF 0%, #04C8DE 100%); /* safari5.1+,chrome10+ */
-  background: -o-linear-gradient(1deg, #FF5EDF 0%, #04C8DE 100%); /* opera 11.10+ */
-  background: -ms-linear-gradient(1deg, #FF5EDF 0%, #04C8DE 100%); /* ie10+ */
   background: linear-gradient(89deg, #FF5EDF 0%, #04C8DE 100%); /* w3c */
 }
 
