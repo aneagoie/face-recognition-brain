@@ -118,7 +118,7 @@ class App extends Component {
         <Particles className='particles'
           params={particlesOptions}
         />
-        <Navigation isSignedIn={this.isSignedIn} onRouteChange={this.onRouteChange} />
+        <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange} />
         {
           this.state.route === 'home'
             ? <div>
