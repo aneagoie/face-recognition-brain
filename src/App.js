@@ -85,11 +85,11 @@ class App extends Component {
         // A good way to check if the model you are using is up, is to check them on the clarifai website. For example,
         // for the Face Detect Mode: https://www.clarifai.com/models/face-detection
         // If that isn't working, then that means you will have to wait until their servers are back up. Another solution
-        // is to use a different version of their model that works like: `c0c0ac362b03416da06ab3fa36fb58e3`
+        // is to use a different version of their model that works like: `d02b4508df58432fbb84e800597b8959`
         // so you would change from:
         // .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
         // to:
-        // .predict('c0c0ac362b03416da06ab3fa36fb58e3', this.state.input)
+        // .predict('d02b4508df58432fbb84e800597b8959', this.state.input)
         Clarifai.FACE_DETECT_MODEL,
         this.state.input)
       .then(response => {
