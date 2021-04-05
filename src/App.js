@@ -33,7 +33,7 @@ class App extends Component {
     this.state = {
       input: '',
       imageUrl: '',
-      box: {},
+      box: [],
       route: 'signin',
       isSignedIn: false,
       user: {
@@ -57,16 +57,24 @@ class App extends Component {
   }
 
   calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-    const image = document.getElementById('inputimage');
+    const regions = data.outputs[0].data.regions;
+    const image = document.getElementById('inputImage');
     const width = Number(image.width);
     const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
+    const allBoxes = [];
+    let boxLoc;
+    for (let i = 0; i < regions.length; i += 1){
+      boxLoc = regions[i].region_info.bounding_box;
+      allBoxes.push(
+        {
+          leftCol: boxLoc.left_col * width,
+          rightCol: width - (boxLoc.right_col * width),
+          topRow: boxLoc.top_row * height,
+          bottomRow: height - (boxLoc.bottom_row * height)
+        }
+      );
     }
+    return allBoxes;
   }
 
   displayFaceBox = (box) => {
