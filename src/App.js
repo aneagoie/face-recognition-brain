@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import Particles from 'react-particles-js';
+// import Particles from 'react-particles-js';
+import ParticlesBg from 'particles-bg'
 import Clarifai from 'clarifai';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Navigation from './components/Navigation/Navigation';
@@ -15,17 +16,18 @@ const app = new Clarifai.App({
  apiKey: 'YOUR API KEY HERE'
 });
 
-const particlesOptions = {
-  particles: {
-    number: {
-      value: 30,
-      density: {
-        enable: true,
-        value_area: 800
-      }
-    }
-  }
-}
+// No Longer need this. Updated to particles-bg
+// const particlesOptions = {
+//   particles: {
+//     number: {
+//       value: 30,
+//       density: {
+//         enable: true,
+//         value_area: 800
+//       }
+//     }
+//   }
+// }
 
 class App extends Component {
   constructor() {
@@ -126,9 +128,7 @@ class App extends Component {
     const { isSignedIn, imageUrl, route, box } = this.state;
     return (
       <div className="App">
-         <Particles className='particles'
-          params={particlesOptions}
-        />
+        <ParticlesBg type="fountain" bg={true} />
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
         { route === 'home'
           ? <div>
