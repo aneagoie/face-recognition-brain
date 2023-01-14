@@ -85,9 +85,8 @@ class App extends Component {
         .predict(
             {
                 id: 'face-detection',
-                name: 'face-detect',
+                name: 'face-detection',
                 version: '6dc7e46bc9124c5c8824be4822abe105',
-                language: '',
                 type: 'visual-detector',
             },
             this.state.input
