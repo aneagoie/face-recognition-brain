@@ -94,9 +94,9 @@ class App extends Component {
     app.models
       .predict(
         {
-          id: 'face-detection',
-          name: 'face-detection',
-          version: '6dc7e46bc9124c5c8824be4822abe105',
+          id: 'face-detection', //If you want general concepts about image: 'general-image-recognition'
+          name: 'face-detection', //If you want general concepts about image: 'general-image-recognition'
+          version: '6dc7e46bc9124c5c8824be4822abe105', //If you want general concepts about image: 'aa7f35c01e0642fda5cf400f543e7c40'
           type: 'visual-detector',
         }, this.state.input)
       .then(response => {
