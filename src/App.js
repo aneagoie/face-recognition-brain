@@ -87,18 +87,7 @@ class App extends Component {
     // for the Face Detect Mode: https://www.clarifai.com/models/face-detection
     // If that isn't working, then that means you will have to wait until their servers are back up. 
 
-    // Old Way:
-    // app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-
-    // New Way:
-    app.models
-      .predict(
-        {
-          id: 'face-detection', //If you want general concepts about image: 'general-image-recognition'
-          name: 'face-detection', //If you want general concepts about image: 'general-image-recognition'
-          version: '6dc7e46bc9124c5c8824be4822abe105', //If you want general concepts about image: 'aa7f35c01e0642fda5cf400f543e7c40'
-          type: 'visual-detector',
-        }, this.state.input)
+    app.models.predict('face-detection', this.state.input)
       .then(response => {
         console.log('hi', response)
         if (response) {
