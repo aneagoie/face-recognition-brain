@@ -13,7 +13,7 @@ import './App.css';
 
 //You must add your own API key here from Clarifai.
 const app = new Clarifai.App({
- apiKey: 'e2fb89963b30494794bbc5598035f138'
+ apiKey: 'YOUR API KEY HERE'
 });
 
 // No Longer need this. Updated to particles-bg
@@ -36,7 +36,7 @@ class App extends Component {
       input: '',
       imageUrl: '',
       box: {},
-      route: 'home',
+      route: 'signin',
       isSignedIn: false,
       user: {
         id: '',
