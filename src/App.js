@@ -11,10 +11,49 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import './App.css';
 
-//You must add your own API key here from Clarifai.
-const app = new Clarifai.App({
- apiKey: 'YOUR API KEY HERE'
-});
+//Old way of doing it with an API Key:
+// const app = new Clarifai.App({
+//  apiKey: 'YOUR API KEY HERE'
+// });
+
+// Change thus to whatever model want to use:
+const MODEL_ID = 'face-detection';
+
+const returnClarifaiRequestOptions = (imageUrl) => {
+  // Your PAT (Personal Access Token) can be found in Clarifai's Account Security section
+  const PAT = 'YOUR_PAT_HERE';
+  // You can keep the 'clarifai'/'main' without changing it to your own unless you want to. 
+  // This will use the public Clarifai model so you dont need to create an app:
+  const USER_ID = 'clarifai';       
+  const APP_ID = 'main';
+
+  const IMAGE_URL = imageUrl;
+
+  const raw = JSON.stringify({
+      "user_app_id": {
+          "user_id": USER_ID,
+          "app_id": APP_ID
+      },
+      "inputs": [
+          {
+              "data": {
+                  "image": {
+                      "url": IMAGE_URL
+                  }
+              }
+          }
+      ]
+  });
+
+  return {
+      method: 'POST',
+      headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Key ' + PAT
+      },
+      body: raw
+  };
+}
 
 // No Longer need this. Updated to particles-bg
 // const particlesOptions = {
@@ -85,9 +124,12 @@ class App extends Component {
     // HEADS UP! Sometimes the Clarifai Models can be down or not working as they are constantly getting updated.
     // A good way to check if the model you are using is up, is to check them on the clarifai website. For example,
     // for the Face Detect Mode: https://www.clarifai.com/models/face-detection
-    // If that isn't working, then that means you will have to wait until their servers are back up. 
 
-    app.models.predict('face-detection', this.state.input)
+    // OLD WAY: 
+    // app.models.predict('face-detection', this.state.input)
+    // NEW WAY:
+    fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", returnClarifaiRequestOptions(this.state.input))
+      .then(response => response.json())
       .then(response => {
         console.log('hi', response)
         if (response) {
