@@ -87,6 +87,21 @@ const sendImageToHuggingFaceWithFetch = async (imageUrl) => {
 sendImageToHuggingFaceWithFetch(this.state.input)
 ```
 
+Inside of FaceRecognition.js you will need to map through the array now:
+```jsx
+{ // NEW: Loop through the array of boxes (NEW HuggingFace API)
+  boxes.map((box, i) => {
+    return (
+      <div 
+        key={i} 
+        className='bounding-box' 
+        style={{top: box.topRow, right: box.rightCol, bottom: box.bottomRow, left: box.leftCol}}>
+      </div>
+    );
+  })
+}
+```
+
 
 *visist https://zerotomastery.io/ for more*
 
