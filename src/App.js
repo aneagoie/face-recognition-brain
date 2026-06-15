@@ -74,7 +74,7 @@ class App extends Component {
     this.state = {
       input: '',
       imageUrl: '',
-      box: {},
+      boxes: [],
       route: 'signin',
       isSignedIn: false,
       user: {
@@ -97,21 +97,57 @@ class App extends Component {
     }})
   }
 
-  calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-    const image = document.getElementById('inputimage');
-    const width = Number(image.width);
-    const height = Number(image.height);
+  // Convert HuggingFace API data to mimic Clarifai API data
+  createClarifaiBoundingBox = (pixelBox, imageWidth, imageHeight) => {
     return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+      left_col: pixelBox.xmin / imageWidth,
+      top_row: pixelBox.ymin / imageHeight,
+      right_col: pixelBox.xmax / imageWidth,
+      bottom_row: pixelBox.ymax / imageHeight
+    };
   }
 
-  displayFaceBox = (box) => {
-    this.setState({box: box});
+  calculateFaceLocation = (data) => {
+    // Get ALL items labeled "person" instead of just the first one
+    const personItems = data.filter(item => item.label === "person");
+    
+    // With new HuggingFace API we need display width as well as original image width
+    const image = document.getElementById('inputimage');
+    const originalWidth = Number(image.naturalWidth);
+    const originalHeight = Number(image.naturalHeight);
+    const width = Number(image.width);
+    const height = Number(image.height);
+
+    // Loop through every person found and calculate their box
+    const boundingBoxes = personItems.map(person => {
+      const clarifaiFace = this.createClarifaiBoundingBox(person.box, originalWidth, originalHeight);
+      return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * height)
+      };
+    });
+
+    return boundingBoxes;
+  }
+
+  // Old Code for Clarifai API:
+  // calculateFaceLocation = (data) => {
+  //   const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+  //   const image = document.getElementById('inputimage');
+  //   const width = Number(image.width);
+  //   const height = Number(image.height);
+  //   return {
+  //     leftCol: clarifaiFace.left_col * width,
+  //     topRow: clarifaiFace.top_row * height,
+  //     rightCol: width - (clarifaiFace.right_col * width),
+  //     bottomRow: height - (clarifaiFace.bottom_row * height)
+  //   }
+  // }
+
+  displayFaceBox = (boxes) => {
+    this.setState({boxes: boxes});
   }
 
   onInputChange = (event) => {
@@ -120,6 +156,29 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
+    const sendImageToHuggingFaceWithFetch = async (imageUrl) => {
+      const response = await fetch(imageUrl);
+      const imageBlob = await response.blob();
+      const contentType = response.headers.get("content-type");
+
+      const apiResponse = await fetch("https://router.huggingface.co/hf-inference/models/facebook/detr-resnet-50",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${"YOUR_API_KEY_HERE"}`,
+            "Content-Type": contentType,
+          },
+          body: imageBlob,
+        },
+      );
+
+      const result = await apiResponse.json();
+      console.log(result) // try to experiment and see what the image detects!
+      this.displayFaceBox(this.calculateFaceLocation(result))
+    };
+    
+    sendImageToHuggingFaceWithFetch(this.state.input)
+  }
    
     // HEADS UP! Sometimes the Clarifai Models can be down or not working as they are constantly getting updated.
     // A good way to check if the model you are using is up, is to check them on the clarifai website. For example,
@@ -128,28 +187,28 @@ class App extends Component {
     // OLD WAY: 
     // app.models.predict('face-detection', this.state.input)
     // NEW WAY:
-    fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", returnClarifaiRequestOptions(this.state.input))
-      .then(response => response.json())
-      .then(response => {
-        console.log('hi', response)
-        if (response) {
-          fetch('http://localhost:3000/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-              id: this.state.user.id
-            })
-          })
-            .then(response => response.json())
-            .then(count => {
-              this.setState(Object.assign(this.state.user, { entries: count}))
-            })
+    // fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/outputs", returnClarifaiRequestOptions(this.state.input))
+    //   .then(response => response.json())
+    //   .then(response => {
+    //     console.log('hi', response)
+    //     if (response) {
+    //       fetch('http://localhost:3000/image', {
+    //         method: 'put',
+    //         headers: {'Content-Type': 'application/json'},
+    //         body: JSON.stringify({
+    //           id: this.state.user.id
+    //         })
+    //       })
+    //         .then(response => response.json())
+    //         .then(count => {
+    //           this.setState(Object.assign(this.state.user, { entries: count}))
+    //         })
 
-        }
-        this.displayFaceBox(this.calculateFaceLocation(response))
-      })
-      .catch(err => console.log(err));
-  }
+    //     }
+    //     this.displayFaceBox(this.calculateFaceLocation(response))
+    //   })
+    //   .catch(err => console.log(err));
+  
 
   onRouteChange = (route) => {
     if (route === 'signout') {
@@ -161,7 +220,7 @@ class App extends Component {
   }
 
   render() {
-    const { isSignedIn, imageUrl, route, box } = this.state;
+    const { isSignedIn, imageUrl, route, boxes } = this.state;
     return (
       <div className="App">
         <ParticlesBg type="fountain" bg={true} />
@@ -177,7 +236,7 @@ class App extends Component {
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
               />
-              <FaceRecognition box={box} imageUrl={imageUrl} />
+              <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
             </div>
           : (
              route === 'signin'
